@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-class FlatMDArray< T > {
+public class FlatMDArray< T > {
 
    public static FlatMDArray< T > Create( params int[] dimensions ) {
 
@@ -75,7 +75,7 @@ class FlatMDArray< T > {
    }
 }
 
-class Flat2DArray< T >: FlatMDArray< T > {
+public class Flat2DArray< T >: FlatMDArray< T > {
 
    public int width  { get { return m_width;  } }
    public int height { get { return m_height; } }
@@ -99,7 +99,7 @@ class Flat2DArray< T >: FlatMDArray< T > {
    }
 }
 
-class Flat3DArray< T >: FlatMDArray< T > {
+public class Flat3DArray< T >: FlatMDArray< T > {
 
    public int width  { get { return m_width;  } }
    public int height { get { return m_height; } }
