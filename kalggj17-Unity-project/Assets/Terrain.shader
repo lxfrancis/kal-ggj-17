@@ -68,7 +68,8 @@ Shader "Unlit/NewUnlitShader"
             fixed4 frag (v2f v) : SV_Target
             {
                 // sample the texture
-                fixed2 lutUV = fixed2(v.worldSpacePosition.g / _Scale, v.color.r);
+                fixed2 lutUV = fixed2( -v.color.r , ((v.worldSpacePosition.g) / 3)+0.5);
+                //lutUV = fixed2( -v.color.r , clamp(v.worldSpacePosition.g / 100, 0, 1));
                 fixed4 col = tex2D(_MainTex, lutUV);
                 //fixed4 col = v.worldSpacePosition.g;
                 // apply fog
