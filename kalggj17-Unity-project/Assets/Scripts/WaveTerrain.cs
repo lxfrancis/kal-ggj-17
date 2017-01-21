@@ -161,6 +161,9 @@ public class WaveTerrain: MonoBehaviour {
       mesh.RecalculateNormals();
       GetComponent< MeshFilter >().mesh = mesh;
    }
+
+   float curveEvaluateTime;
+   float totalTime;
    
    void Update() {
 
@@ -175,10 +178,13 @@ public class WaveTerrain: MonoBehaviour {
                float rippleRadius = (Time.time - ripple.startTime) * RippleController.instance.speed;
 
                if (RippleController.instance.useCurves) {
+                  float st = Time.realtimeSinceStartup;
                   float t = (rippleRadius - distance) / RippleController.instance.speed;
                   if (t > 0 && t < ripple.curve.keys.Last().time) {
                      height += ripple.curve.Evaluate( t );
                   }
+                  curveEvaluateTime += Time.realtimeSinceStartup - st;
+                  totalTime = Time.realtimeSinceStartup;
                }
                else {
                   float pointWithinRipple = (rippleRadius - distance) / ripple.width;
