@@ -138,6 +138,6 @@ public class PitchTracker : MonoBehaviour
 		}
 		pitchValue = freqN * (samplerate / 2f) / binSize; // convert index to frequency
 		peaks.Clear();
-		singValue = (Mathf.Clamp(dbValue,-30,20)+30)/50;
+		singValue = (Mathf.Clamp(dbValue,-5,20)+5)/25;
 	}
 }

@@ -57,6 +57,8 @@ public class WaveTerrain: MonoBehaviour {
                float slope = Vector3.Angle( normals[ x + z * size ], Vector3.up );
                Color flatColor = flatColors.Evaluate( Mathf.InverseLerp( minAltitude, maxAltitude, heights[ x, z ] ) );
                Color slopeColor = slopeColors.Evaluate( Mathf.InverseLerp( minAltitude, maxAltitude, heights[ x, z ] ) );
+                  flatColor = Color.white;
+                  slopeColor = Color.black;
                meshColors[ x + z * size ] = Color.Lerp( flatColor, slopeColor, Mathf.InverseLerp( 0.0f, maxSlopeAngle, slope ) );
             }
          }
@@ -74,9 +76,9 @@ public class WaveTerrain: MonoBehaviour {
       }
 
       if (updateVerts) {
-      mesh.vertices = verts;
+         mesh.vertices = verts;
       }
-      mesh.colors   = meshColors;
+      mesh.colors = meshColors;
       mesh.RecalculateNormals();
 
    }
@@ -171,10 +173,19 @@ public class WaveTerrain: MonoBehaviour {
 
                float distance          = (new Vector2( x - centreOffset, z - centreOffset ) - ripple.pos).magnitude;
                float rippleRadius      = (Time.time - ripple.startTime) * RippleController.instance.speed;
-               float pointWithinRipple = (rippleRadius - distance) / ripple.width;
 
-               if (pointWithinRipple >= 0.0f && pointWithinRipple <= 1.0f) {
-                  height += Mathf.Sin( pointWithinRipple * Mathf.PI * 2.0f ) * ripple.height;
+               if (RippleController.instance.useCurves) {
+                  float t = rippleRadius - distance;
+                  if (t > 0 && t < ripple.curve.keys.Last().time) {
+                     height += ripple.curve.Evaluate( t );
+                  }
+               }
+               else {
+                  float pointWithinRipple = (rippleRadius - distance) / ripple.width;
+
+                  if (pointWithinRipple >= 0.0f && pointWithinRipple <= 1.0f) {
+                     height += Mathf.Sin( pointWithinRipple * Mathf.PI * 2.0f ) * ripple.height;
+                  }
                }
             }
             heightDeltas[ x, z ] = height - heights[ x, z ];

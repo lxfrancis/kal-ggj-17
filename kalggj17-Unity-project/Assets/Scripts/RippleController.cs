@@ -5,15 +5,27 @@ using UnityEngine;
 
 public class Ripple {
 
-   public Vector2 pos;
-   public float   startTime;
-   public float   height, width;
-   public int     trailNum = -1;
+   public Vector2        pos;
+   public float          startTime;
+   public float          height, width;
+   public int            trailNum = -1;
+   public AnimationCurve curve;
+   public float          lastKeyframeTime;
+   public bool           down = false;
 
-   public bool live { get { return Time.time - startTime < width / RippleController.instance.speed; } }
+   public bool live {
+      get {
+         if (RippleController.instance.useCurves) {
+            return true;
+            return Time.time < curve.keys.Last().time + width;
+         }
+         return Time.time - startTime < width / RippleController.instance.speed;
+      }
+   }
    public bool visible {
       get {
-         return (Time.time - startTime) * RippleController.instance.speed - width
+         float useWidth = RippleController.instance.useCurves ? curve.keys.Last().time : width;
+         return (Time.time - startTime) * RippleController.instance.speed - useWidth
                    < WaveTerrain.instance.size * Mathf.Sqrt( 2 );
       }
    }
@@ -23,15 +35,18 @@ public class RippleController: MonoBehaviour {
 
    public static RippleController instance;
 
-   public float minAmplitude, heightAtMinAmplitude, midAmplitude, heightAtMidAmplitude,
-                midPitch, widthAtMidPitch, pitchScale, speed, trailProportion;
-   public int   trailOutRipples;
+   public float     minAmplitude, heightAtMinAmplitude, midAmplitude, heightAtMidAmplitude,
+                    midPitch, widthAtMidPitch, pitchScale, speed, trailProportion, keyframeInterval;
+   public int       trailOutRipples;
+   public bool      useCurves;
+   public Transform upPin, downPin;
 
    internal float          amplitudeInput, pitchInput;
    internal List< Ripple > ripples = new List<Ripple>();
+   internal int numRipples;
 
    bool          inputActive;
-   Ripple        currentRipple;
+   Ripple        currentRipple, currentDownRipple;
    int           currentTrailNum;
    List< float > recentAmplitudes = new List< float >();
    List< float > recentPitches    = new List< float >();
@@ -53,19 +68,29 @@ public class RippleController: MonoBehaviour {
       instance = this;
    }
 
-   void MakeNewRipple() {
+   void MakeNewRipple( bool down=false ) {
       
-      currentRipple           = new Ripple();
-      currentRipple.pos       = lastInputPoint;
-      currentRipple.startTime = Time.time;
-      currentRipple.height    = AmplitudeToHeight( amplitudeInput );
-      currentRipple.width     = PitchToWidth( pitchInput );
+      var ripple = new Ripple();
+      ripple.pos = lastInputPoint;
+      if (useCurves) { ripple.pos = down ? downPin.position : upPin.position; }
+      ripple.startTime = Time.time;
+      ripple.height    = AmplitudeToHeight( amplitudeInput );
+      ripple.width     = PitchToWidth( pitchInput );
+      ripple.down      = down;
       recentAmplitudes.Clear();
       recentPitches.Clear();
       recentAmplitudes.Add( amplitudeInput );
       recentPitches.Add( pitchInput );
+      if (down) { currentDownRipple = ripple; }
+      else { currentRipple = ripple; }
       currentTrailNum = 0;
-      ripples.Add( currentRipple );
+
+      if (useCurves) {
+
+         ripple.curve            = new AnimationCurve( new Keyframe( Time.time, ripple.height ) );
+         ripple.lastKeyframeTime = Time.time;
+      }
+      ripples.Add( ripple );
    }
 
    void MakeNewTrailRipple( Ripple parent ) {
@@ -100,6 +125,8 @@ public class RippleController: MonoBehaviour {
                            LayerMask.NameToLayer( "cursorPlane" ) )) {
 
          lastInputPoint = new Vector2( hit.point.x, hit.point.z );
+         if (Input.GetMouseButtonDown( 0 )) { upPin.position   = lastInputPoint; }
+         if (Input.GetMouseButtonDown( 1 )) { downPin.position = lastInputPoint; }
       }
 
       if (!inputActive) {
@@ -108,28 +135,46 @@ public class RippleController: MonoBehaviour {
 
             inputActive = true;
             MakeNewRipple();
+            if (useCurves) { MakeNewRipple( true ); }
          }
       }
       else {
 
-         if (inputActive && amplitudeInput < minAmplitude) {
+         if (inputActive && amplitudeInput < minAmplitude && false) {
 
             inputActive = false;
-            if (currentRipple != null) { currentRipple.trailNum = 0; }  // make new trails
+            if (useCurves) {
+               currentRipple = null;
+               currentDownRipple = null;
+            }
+            else if (currentRipple != null) { currentRipple.trailNum = 0; }  // make new trails
          }
          else {
             if (currentRipple != null && currentRipple.live) {
 
-               recentAmplitudes.Add( amplitudeInput );
-               recentPitches.Add( pitchInput );
+               if (useCurves) {
+                  if (Time.time > currentRipple.lastKeyframeTime + keyframeInterval) {
+                     currentRipple.lastKeyframeTime = Time.time;
+                     currentRipple.curve.AddKey( Time.time, AmplitudeToHeight( amplitudeInput ) );
+                     currentDownRipple.lastKeyframeTime = Time.time;
+                     currentDownRipple.curve.AddKey( Time.time, -AmplitudeToHeight( amplitudeInput ) );
+                     Debug.Log( "keys: " + AmplitudeToHeight( amplitudeInput ) + ", " +  -AmplitudeToHeight( amplitudeInput ) );
+                  }
+               }
+               else {
+                  recentAmplitudes.Add( amplitudeInput );
+                  recentPitches.Add( pitchInput );
 
-               currentRipple.height = AmplitudeToHeight( recentAmplitudes.Average() );
-               currentRipple.width  = PitchToWidth( recentPitches.Average() );
+                  currentRipple.height = AmplitudeToHeight( recentAmplitudes.Average() );
+                  currentRipple.width  = PitchToWidth( recentPitches.Average() );
+               }
             }
             else {
                MakeNewRipple();
+               if (useCurves) { MakeNewRipple( true ); }
             }
          }
       }
+      numRipples = ripples.Count;
    }
 }
