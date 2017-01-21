@@ -66,8 +66,6 @@ public class RippleController: MonoBehaviour {
       recentPitches.Add( pitchInput );
       currentTrailNum = 0;
       ripples.Add( currentRipple );
-
-      Debug.Log( "new ripple at " + lastInputPoint + "; numRipples: " + ripples.Count );
    }
 
    void MakeNewTrailRipple( Ripple parent ) {
@@ -80,8 +78,6 @@ public class RippleController: MonoBehaviour {
       newTrailRipple.trailNum  = parent.trailNum + 1;
       parent.trailNum          = -1;
       ripples.Add( newTrailRipple );
-
-      Debug.Log( "new trail ripple at " + newTrailRipple.pos + "; numRipples: " + ripples.Count );
    }
    
    void Update() {
