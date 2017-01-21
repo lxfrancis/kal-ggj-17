@@ -19,7 +19,6 @@ public class WaveTerrain: MonoBehaviour {
    void Awake() {
 
       instance = this;
-      mesh     = GetComponent< MeshFilter >().sharedMesh;
    }
 
    void AddTrianglePair( int a, int b, int c, int d, List< int > tris, string info ) {
@@ -63,6 +62,7 @@ public class WaveTerrain: MonoBehaviour {
       heights              = new Flat2DArray< float >( size, size );
       verts                = new Vector3[ size * size + 8 * size ];
       centreOffset         = (size - 1) * 0.5f;
+      mesh                 = new Mesh();
       var tris             = new List< int >();
       int topEdgeOffset    = size * size;
       int bottomEdgeOffset = size * size + size * 4;
@@ -123,13 +123,14 @@ public class WaveTerrain: MonoBehaviour {
       Debug.Log( "vert count: " + verts.Length + "; max tri index: " + tris.Max() );
       mesh.triangles = tris.ToArray();
       mesh.RecalculateNormals();
+      GetComponent< MeshFilter >().mesh = mesh;
    }
    
    void Update() {
       
       for (int x = 0; x < size - 1; x++) {
          for (int z = 0; z < size - 1; z++) {
-            heights[ x, z ] = baseHeight + 2 * (Mathf.Sin( Time.time + x ) + Mathf.Sin( Time.time * 0.5f + z )) + 3 * Mathf.Sin( new Vector2( x - centreOffset, z - centreOffset ).magnitude + Time.time * 0.7f );
+            heights[ x, z ] = baseHeight + 1 * (Mathf.Sin( Time.time + x * 0.7f ) + Mathf.Sin( Time.time * 0.5f + z * 0.4f )) + 1.5f * Mathf.Sin( new Vector2( x - centreOffset, z - centreOffset ).magnitude - Time.time * 1.7f );
          }
       }
 
