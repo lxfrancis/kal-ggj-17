@@ -16,10 +16,9 @@ public class Panner : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-
-
+		
 		panner.position += new Vector3(panSpeed * Time.deltaTime, 0, 0);
 		float height = (pitchTracker.pitchValue - bottomLimit) / (topLimit - bottomLimit);
-		pitchMover.localPosition = new Vector3(0, Mathf.Clamp(pitchTracker.dbValue,-30,20)/30, 0);
+		pitchMover.localPosition = new Vector3(0, pitchTracker.singValue * heightScale, 0);
 	}
 }
