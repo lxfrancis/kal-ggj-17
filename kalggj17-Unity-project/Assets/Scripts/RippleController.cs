@@ -17,15 +17,18 @@ public class Ripple {
       get {
          if (RippleController.instance.useCurves) {
             return true;
-            return Time.time < curve.keys.Last().time + width;
+            return Time.time - startTime < curve.keys.Last().time + width;
          }
          return Time.time - startTime < width / RippleController.instance.speed;
       }
    }
    public bool visible {
       get {
-         float useWidth = RippleController.instance.useCurves ? curve.keys.Last().time : width;
-         return (Time.time - startTime) * RippleController.instance.speed - useWidth
+         if (RippleController.instance.useCurves) {
+            return true;
+            return Time.time - startTime > curve.keys.Last().time + (WaveTerrain.instance.size * Mathf.Sqrt( 2 )) / RippleController.instance.speed;
+         }
+         return (Time.time - startTime) * RippleController.instance.speed - width
                    < WaveTerrain.instance.size * Mathf.Sqrt( 2 );
       }
    }
@@ -44,6 +47,7 @@ public class RippleController: MonoBehaviour {
    internal float          amplitudeInput, pitchInput;
    internal List< Ripple > ripples = new List<Ripple>();
    internal int numRipples;
+   internal AnimationCurve upCurve;
 
    bool          inputActive;
    Ripple        currentRipple, currentDownRipple;
@@ -70,6 +74,7 @@ public class RippleController: MonoBehaviour {
 
    void MakeNewRipple( bool down=false ) {
       
+      Debug.Log( "new ripple, down: " + down );
       var ripple = new Ripple();
       ripple.pos = lastInputPoint;
       if (useCurves) { ripple.pos = down ? downPin.position : upPin.position; }
@@ -87,8 +92,9 @@ public class RippleController: MonoBehaviour {
 
       if (useCurves) {
 
-         ripple.curve            = new AnimationCurve( new Keyframe( Time.time, ripple.height ) );
+         ripple.curve            = new AnimationCurve( new Keyframe( 0.0f, ripple.height ) );
          ripple.lastKeyframeTime = Time.time;
+         if (!down) { upCurve = ripple.curve; }
       }
       ripples.Add( ripple );
    }
@@ -114,6 +120,7 @@ public class RippleController: MonoBehaviour {
          if (!ripple.visible) {
 
             ripples.Remove( ripple );
+            Debug.Log( "removed a ripple" );
             continue;
          }
          if (!ripple.live && ripple.trailNum >= 0 && ripple.trailNum < trailOutRipples) {
@@ -155,10 +162,11 @@ public class RippleController: MonoBehaviour {
                if (useCurves) {
                   if (Time.time > currentRipple.lastKeyframeTime + keyframeInterval) {
                      currentRipple.lastKeyframeTime = Time.time;
-                     currentRipple.curve.AddKey( Time.time, AmplitudeToHeight( amplitudeInput ) );
+                     currentRipple.curve.AddKey( Time.time - currentRipple.startTime, AmplitudeToHeight( amplitudeInput ) );
                      currentDownRipple.lastKeyframeTime = Time.time;
-                     currentDownRipple.curve.AddKey( Time.time, -AmplitudeToHeight( amplitudeInput ) );
-                     Debug.Log( "keys: " + AmplitudeToHeight( amplitudeInput ) + ", " +  -AmplitudeToHeight( amplitudeInput ) );
+                     currentDownRipple.curve.AddKey( Time.time - currentDownRipple.startTime, -AmplitudeToHeight( amplitudeInput ) );
+                     //Debug.Log( "keys: " + (Time.time - currentDownRipple.startTime) + " - " + AmplitudeToHeight( amplitudeInput ) + ", " +  -AmplitudeToHeight( amplitudeInput ) );
+                     //Debug.Log( Utils.PrintVals( currentRipple.curve.keys ) );
                   }
                }
                else {
