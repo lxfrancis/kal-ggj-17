@@ -7,12 +7,16 @@ public class WaveTerrain: MonoBehaviour {
 
    public static WaveTerrain instance;
 
-   public int   size;
-   public float baseHeight, bottomHeight;
-   public bool  flatShaded = true;
+   public int       size;
+   public float     baseHeight, bottomHeight, minAltitude, maxAltitude, maxSlopeAngle;
+   public bool      flatShaded = true;
+   public Transform cursorPlane;
+   public Gradient  flatColors, slopeColors;
    
    Mesh                 mesh;
    Vector3[]            verts;
+   Flat2DArray< Color > colorMap;
+   Color[]              meshColors;
    Flat2DArray< float > heights;
    float                centreOffset;
 
@@ -35,11 +39,17 @@ public class WaveTerrain: MonoBehaviour {
    }
 
    void UpdateMesh() {
+
+      var normals = mesh.normals;
       
       // top surface
       for (int x = 0; x < size; x++) {
          for (int z = 0; z < size; z++) {
-            verts[ x + z * size ].y = heights[ x, z ];
+            verts[ x + z * size ].y    = heights[ x, z ];
+            float slope = Vector3.Angle( normals[ x + z * size ], Vector3.up );
+            Color flatColor = flatColors.Evaluate( Mathf.InverseLerp( minAltitude, maxAltitude, heights[ x, z ] ) );
+            Color slopeColor = slopeColors.Evaluate( Mathf.InverseLerp( minAltitude, maxAltitude, heights[ x, z ] ) );
+            meshColors[ x + z * size ] = Color.Lerp( flatColor, slopeColor, Mathf.InverseLerp( 0.0f, maxSlopeAngle, slope ) );
          }
       }
 
@@ -54,18 +64,27 @@ public class WaveTerrain: MonoBehaviour {
       }
 
       mesh.vertices = verts;
+      mesh.colors   = meshColors;
       mesh.RecalculateNormals();
+
    }
    
    void Start() {
       
       heights              = new Flat2DArray< float >( size, size );
       verts                = new Vector3[ size * size + 8 * size ];
+      meshColors           = new Color[ verts.Length ];
+      colorMap             = new Flat2DArray< Color >( size, size );
       centreOffset         = (size - 1) * 0.5f;
       mesh                 = new Mesh();
       var tris             = new List< int >();
       int topEdgeOffset    = size * size;
       int bottomEdgeOffset = size * size + size * 4;
+
+      Camera.main.transform.position = Camera.main.transform.position * (size / 150.0f);
+
+      cursorPlane.position   = Vector3.up  * baseHeight;
+      cursorPlane.localScale = Vector3.one * size * 0.1f;
 
       // top surface
       for (int x = 0; x < size; x++) {
@@ -127,10 +146,24 @@ public class WaveTerrain: MonoBehaviour {
    }
    
    void Update() {
-      
+
       for (int x = 0; x < size - 1; x++) {
          for (int z = 0; z < size - 1; z++) {
-            heights[ x, z ] = baseHeight + 1 * (Mathf.Sin( Time.time + x * 0.7f ) + Mathf.Sin( Time.time * 0.5f + z * 0.4f )) + 1.5f * Mathf.Sin( new Vector2( x - centreOffset, z - centreOffset ).magnitude - Time.time * 1.7f );
+            //heights[ x, z ] = baseHeight + 1 * (Mathf.Sin( Time.time + x * 0.7f ) + Mathf.Sin( Time.time * 0.5f + z * 0.4f )) + 1.5f * Mathf.Sin( new Vector2( x - centreOffset, z - centreOffset ).magnitude - Time.time * 1.7f );
+            float height = baseHeight;
+
+            foreach (Ripple ripple in RippleController.instance.ripples) {
+
+               float distance          = (new Vector2( x - centreOffset, z - centreOffset ) - ripple.pos).magnitude;
+               float rippleRadius      = (Time.time - ripple.startTime) * RippleController.instance.speed;
+               float pointWithinRipple = (rippleRadius - distance) / ripple.width;
+
+               if (pointWithinRipple >= 0.0f && pointWithinRipple <= 1.0f) {
+                  height += Mathf.Sin( pointWithinRipple * Mathf.PI * 2.0f ) * ripple.height;
+               }
+            }
+            heights[ x, z ]  = height;
+            //colorMap[ x, z ] = flatColors.Evaluate( Mathf.InverseLerp( minAltitude, maxAltitude, height ) );
          }
       }
 
