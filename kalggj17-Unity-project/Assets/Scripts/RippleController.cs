@@ -16,7 +16,7 @@ public class Ripple {
    public bool live {
       get {
          if (RippleController.instance.useCurves) {
-            return true;
+            //return true;
             return Time.time - startTime < curve.keys.Last().time + width;
          }
          return Time.time - startTime < width / RippleController.instance.speed;
@@ -25,8 +25,8 @@ public class Ripple {
    public bool visible {
       get {
          if (RippleController.instance.useCurves) {
-            return true;
-            return Time.time - startTime > curve.keys.Last().time + (WaveTerrain.instance.size * Mathf.Sqrt( 2 )) / RippleController.instance.speed;
+            //return true;
+            return Time.time - startTime < curve.keys.Last().time + (WaveTerrain.instance.size * Mathf.Sqrt( 2 )) / RippleController.instance.speed;
          }
          return (Time.time - startTime) * RippleController.instance.speed - width
                    < WaveTerrain.instance.size * Mathf.Sqrt( 2 );
@@ -115,6 +115,9 @@ public class RippleController: MonoBehaviour {
       
       RaycastHit hit;
 
+      recentAmplitudes.Add( amplitudeInput );
+      recentPitches.Add( pitchInput );
+
       foreach (Ripple ripple in ripples.ToArray()) {
 
          if (!ripple.visible) {
@@ -147,7 +150,7 @@ public class RippleController: MonoBehaviour {
       }
       else {
 
-         if (inputActive && amplitudeInput < minAmplitude && false) {
+         if (inputActive && amplitudeInput < minAmplitude) {
 
             inputActive = false;
             if (useCurves) {
@@ -162,17 +165,14 @@ public class RippleController: MonoBehaviour {
                if (useCurves) {
                   if (Time.time > currentRipple.lastKeyframeTime + keyframeInterval) {
                      currentRipple.lastKeyframeTime = Time.time;
-                     currentRipple.curve.AddKey( Time.time - currentRipple.startTime, AmplitudeToHeight( amplitudeInput ) );
+                     currentRipple.curve.AddKey( Time.time - currentRipple.startTime, AmplitudeToHeight( recentAmplitudes.Average() ) );
                      currentDownRipple.lastKeyframeTime = Time.time;
-                     currentDownRipple.curve.AddKey( Time.time - currentDownRipple.startTime, -AmplitudeToHeight( amplitudeInput ) );
+                     currentDownRipple.curve.AddKey( Time.time - currentDownRipple.startTime, -AmplitudeToHeight( recentAmplitudes.Average() ) );
                      //Debug.Log( "keys: " + (Time.time - currentDownRipple.startTime) + " - " + AmplitudeToHeight( amplitudeInput ) + ", " +  -AmplitudeToHeight( amplitudeInput ) );
                      //Debug.Log( Utils.PrintVals( currentRipple.curve.keys ) );
                   }
                }
                else {
-                  recentAmplitudes.Add( amplitudeInput );
-                  recentPitches.Add( pitchInput );
-
                   currentRipple.height = AmplitudeToHeight( recentAmplitudes.Average() );
                   currentRipple.width  = PitchToWidth( recentPitches.Average() );
                }

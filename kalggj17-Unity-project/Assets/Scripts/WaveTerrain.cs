@@ -171,8 +171,8 @@ public class WaveTerrain: MonoBehaviour {
 
             foreach (Ripple ripple in RippleController.instance.ripples) {
 
-               float distance          = (new Vector2( x - centreOffset, z - centreOffset ) - ripple.pos).magnitude;
-               float rippleRadius      = (Time.time - ripple.startTime) * RippleController.instance.speed;
+               float distance     = (new Vector2( x - centreOffset, z - centreOffset ) - ripple.pos).magnitude;
+               float rippleRadius = (Time.time - ripple.startTime) * RippleController.instance.speed;
 
                if (RippleController.instance.useCurves) {
                   float t = (rippleRadius - distance) / RippleController.instance.speed;
