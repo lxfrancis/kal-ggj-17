@@ -20,7 +20,7 @@ public class CameraManager : MonoBehaviour {
 		{
 			Vector3 mouseDelta = (Input.mousePosition - prevMousePosition) * rotateRate * Time.deltaTime;
 			cameraTarget.RotateAround(cameraTarget.position, Vector3.up, mouseDelta.x);
-			cameraTarget.RotateAround(cameraTarget.position, Camera.main.transform.right, mouseDelta.y);
+			cameraTarget.RotateAround(cameraTarget.position, Camera.main.transform.right, -mouseDelta.y);
 		}
 
 		prevMousePosition = Input.mousePosition;
