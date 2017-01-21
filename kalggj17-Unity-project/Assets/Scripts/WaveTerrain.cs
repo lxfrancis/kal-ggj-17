@@ -54,11 +54,11 @@ public class WaveTerrain: MonoBehaviour {
          for (int z = 0; z < size; z++) {
             verts[ x + z * size ].y    = heights[ x, z ];
             if (lerpColors) {
-               float slope = Vector3.Angle( normals[ x + z * size ], Vector3.up );
-               Color flatColor = flatColors.Evaluate( Mathf.InverseLerp( minAltitude, maxAltitude, heights[ x, z ] ) );
+               float slope      = Vector3.Angle( normals[ x + z * size ], Vector3.up );
+               Color flatColor  = flatColors.Evaluate( Mathf.InverseLerp( minAltitude, maxAltitude, heights[ x, z ] ) );
                Color slopeColor = slopeColors.Evaluate( Mathf.InverseLerp( minAltitude, maxAltitude, heights[ x, z ] ) );
-                  flatColor = Color.white;
-                  slopeColor = Color.black;
+               //flatColor  = Color.white;
+               //slopeColor = Color.black;
                meshColors[ x + z * size ] = Color.Lerp( flatColor, slopeColor, Mathf.InverseLerp( 0.0f, maxSlopeAngle, slope ) );
             }
          }
@@ -171,11 +171,11 @@ public class WaveTerrain: MonoBehaviour {
 
             foreach (Ripple ripple in RippleController.instance.ripples) {
 
-               float distance          = (new Vector2( x - centreOffset, z - centreOffset ) - ripple.pos).magnitude;
-               float rippleRadius      = (Time.time - ripple.startTime) * RippleController.instance.speed;
+               float distance     = (new Vector2( x - centreOffset, z - centreOffset ) - ripple.pos).magnitude;
+               float rippleRadius = (Time.time - ripple.startTime) * RippleController.instance.speed;
 
                if (RippleController.instance.useCurves) {
-                  float t = rippleRadius - distance;
+                  float t = (rippleRadius - distance) / RippleController.instance.speed;
                   if (t > 0 && t < ripple.curve.keys.Last().time) {
                      height += ripple.curve.Evaluate( t );
                   }
