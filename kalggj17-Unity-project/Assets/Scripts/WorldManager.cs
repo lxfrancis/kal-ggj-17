@@ -61,6 +61,7 @@ public class WorldManager : MonoBehaviour {
 		waterMat.SetColor("_FogColor", conf.fogColor);
 
 		EntityController entityController = GameObject.FindObjectOfType<EntityController>();
+		entityController.spawnTrees = conf.useTrees;
 
 	}
 }
