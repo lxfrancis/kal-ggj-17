@@ -28,8 +28,8 @@ public class WaveTerrain: MonoBehaviour {
 
    public Vector3 PositionForCoord( Vector2 coord ) {
 
-      var result = new Vector3( coord.x, heights[ Mathf.Clamp( Mathf.RoundToInt( coord.x ), 0, size - 1 ), Mathf.Clamp( Mathf.RoundToInt( coord.y ), 0, size - 1 ) ], coord.y );
-      Debug.Log( "Position for coord: " + coord + " - " + result );
+      var result = new Vector3( coord.x - centreOffset, heights[ Mathf.Clamp( Mathf.RoundToInt( coord.x ), 0, size - 1 ), Mathf.Clamp( Mathf.RoundToInt( coord.y ), 0, size - 1 ) ], coord.y - centreOffset );
+      //Debug.Log( "Position for coord: " + coord + " - " + result );
       return result;
    }
 
@@ -100,7 +100,7 @@ public class WaveTerrain: MonoBehaviour {
       int topEdgeOffset    = size * size;
       int bottomEdgeOffset = size * size + size * 4;
       
-      EntityController.instance.entityInstances = new Flat2DArray< Entity >( size, size );
+      EntityController.entityInstances = new Flat2DArray< Entity >( size, size );
 
       Camera.main.transform.position = Camera.main.transform.position * (size / 150.0f);
 
