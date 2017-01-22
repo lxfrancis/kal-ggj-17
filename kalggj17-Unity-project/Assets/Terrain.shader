@@ -67,7 +67,7 @@ Shader "Custom/TerrainShader"
                 o.pos = UnityObjectToViewPos(i.vertex);
                 o.color = i.color;
 
-                half nl = max(0, dot(o.worldNormal, _WorldSpaceLightPos0.xyz));
+                half nl = max(0, dot(o.worldNormal, float3(1.0,1.0,1.0)));
                 // factor in the light color
                 //o.diff = (nl * _LightColor0);
                 o.diff = (nl * _LightColor0) + _AmbientColor;
