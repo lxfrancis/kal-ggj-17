@@ -44,7 +44,8 @@ public class RippleController: MonoBehaviour {
    public int            trailOutRipples, maxRipples;
    public bool           useCurves, useDownPin;
    public Transform      upPin, downPin;
-   public AnimationCurve growthCurve, dampingCurve;
+	public AnimationCurve growthCurve, dampingCurve;
+	public float         lastInputTime;
 
    internal float          amplitudeInput, pitchInput;
    internal List< Ripple > ripples = new List<Ripple>();
@@ -54,7 +55,6 @@ public class RippleController: MonoBehaviour {
    bool          inputActive;
    Ripple        currentRipple, currentDownRipple;
    int           currentTrailNum;
-   float         lastInputTime;
    List< float > recentAmplitudes = new List< float >();
    List< float > recentPitches    = new List< float >();
    Vector2       lastInputPoint;
