@@ -40,7 +40,7 @@ public class RippleController: MonoBehaviour {
 
    public float          minAmplitude, heightAtMinAmplitude, midAmplitude, heightAtMidAmplitude,
                          midPitch, widthAtMidPitch, pitchScale, speed, trailProportion, keyframeInterval,
-                         trailOffDistance, speedDamping, heightGrowthDuration;
+                         trailOffDistance, speedDamping, heightGrowthDuration, rippleSplitTimeGap = 0.2f;
    public int            trailOutRipples, maxRipples;
    public bool           useCurves, useDownPin;
    public Transform      upPin, downPin;
@@ -54,6 +54,7 @@ public class RippleController: MonoBehaviour {
    bool          inputActive;
    Ripple        currentRipple, currentDownRipple;
    int           currentTrailNum;
+   float         lastInputTime;
    List< float > recentAmplitudes = new List< float >();
    List< float > recentPitches    = new List< float >();
    Vector2       lastInputPoint;
@@ -72,6 +73,7 @@ public class RippleController: MonoBehaviour {
    void Awake() {
 
       instance = this;
+      if (!useDownPin) { downPin.gameObject.SetActive( false ); }
    }
 
    void MakeNewRipple( bool down=false ) {
@@ -79,7 +81,7 @@ public class RippleController: MonoBehaviour {
       Debug.Log( "new ripple, down: " + down );
       var ripple = new Ripple();
       ripple.pos = lastInputPoint;
-      if (useCurves) { ripple.pos = down ? downPin.position : upPin.position; }
+      if (useCurves) { ripple.pos = down ? downPin.position.xz() : upPin.position.xz(); }
       ripple.startTime = Time.time;
       ripple.height    = AmplitudeToHeight( amplitudeInput );
       ripple.width     = PitchToWidth( pitchInput );
@@ -121,6 +123,8 @@ public class RippleController: MonoBehaviour {
       recentAmplitudes.Add( amplitudeInput );
       recentPitches.Add( pitchInput );
 
+      if (amplitudeInput > minAmplitude) { lastInputTime = Time.time; }
+
       foreach (Ripple ripple in ripples.ToArray()) {
 
          if (!ripple.visible) {
@@ -138,7 +142,10 @@ public class RippleController: MonoBehaviour {
                            LayerMask.NameToLayer( "cursorPlane" ) )) {
 
          lastInputPoint = new Vector2( hit.point.x, hit.point.z );
-         if (Input.GetMouseButtonDown( 0 )) { upPin.position   = lastInputPoint; }
+         if (Input.GetMouseButtonDown( 0 )) {
+            upPin.position= WaveTerrain.instance.PositionForCoord( lastInputPoint );
+            currentRipple = null;
+         }
          if (Input.GetMouseButtonDown( 1 )) { downPin.position = lastInputPoint; }
       }
 
@@ -146,18 +153,20 @@ public class RippleController: MonoBehaviour {
 
          if (amplitudeInput > minAmplitude) {
 
-            inputActive = true;
+            inputActive   = true;
             MakeNewRipple();
             if (useCurves && useDownPin) { MakeNewRipple( true ); }
          }
       }
       else {
 
-         if (inputActive && amplitudeInput < minAmplitude) {
+         if (inputActive && amplitudeInput < minAmplitude && Time.time > lastInputTime + rippleSplitTimeGap) {
 
             inputActive = false;
+
             if (useCurves) {
-               currentRipple = null;
+
+               currentRipple     = null;
                currentDownRipple = null;
             }
             else if (currentRipple != null) { currentRipple.trailNum = 0; }  // make new trails
@@ -174,6 +183,8 @@ public class RippleController: MonoBehaviour {
                         currentDownRipple.lastKeyframeTime = Time.time;
                         currentDownRipple.curve.AddKey( Time.time - currentDownRipple.startTime, -AmplitudeToHeight( recentAmplitudes.Average() ) );
                      }
+                     recentAmplitudes.Clear();
+                     recentPitches.Clear();
                      //Debug.Log( "keys: " + (Time.time - currentDownRipple.startTime) + " - " + AmplitudeToHeight( amplitudeInput ) + ", " +  -AmplitudeToHeight( amplitudeInput ) );
                      //Debug.Log( Utils.PrintVals( currentRipple.curve.keys ) );
                   }
