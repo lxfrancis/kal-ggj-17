@@ -1,0 +1,22 @@
+fileFormatVersion: 2
+guid: b8699d07a3cd8da4592c55efcd10e3f2
+timeCreated: 1485043952
+licenseType: Free
+TrueTypeFontImporter:
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Matias
+  fontNames:
+  - Matias
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: 6af4975818b68c1469c1fab813dc82fe, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
