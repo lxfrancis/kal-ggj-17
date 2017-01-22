@@ -75,9 +75,6 @@ Shader "Custom/Water"
                 o.pos = UnityObjectToViewPos(i.vertex);
                 o.color = i.color;
 
-                half nl = max(0, dot(o.worldNormal, _WorldSpaceLightPos0.xyz));
-                // factor in the light color
-                o.diff = (nl * _LightColor0) + _AmbientColor;
 
 
                 return o;

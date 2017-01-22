@@ -69,6 +69,7 @@ Shader "Custom/TerrainShader"
 
                 half nl = max(0, dot(o.worldNormal, _WorldSpaceLightPos0.xyz));
                 // factor in the light color
+                //o.diff = (nl * _LightColor0);
                 o.diff = (nl * _LightColor0) + _AmbientColor;
 
 
