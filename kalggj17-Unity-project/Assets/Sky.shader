@@ -1,12 +1,15 @@
-﻿
-Shader "Custom/TerrainShader"
+﻿// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
+
+
+Shader "Custom/Sky"
 {
+
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
         _Scale ("Scale", float) = 1.0
-        _FogColor ("Fog Color", color) = (1,1,1,1)
-        _AmbientColor ("Ambient Color", color) = (1,1,1,1)
+        _TopColor ("Top Color", color) = (0,0,1,1)
+        _BottomColor ("Bottom Color", color) = (1,0,0,1)
     }
     SubShader
     {
@@ -49,8 +52,8 @@ Shader "Custom/TerrainShader"
             sampler2D _MainTex;
             float4 _MainTex_ST;
             float _Scale;
-            fixed4 _FogColor;
-            fixed4 _AmbientColor;
+            fixed4 _TopColor;
+            fixed4 _BottomColor;
             
             v2f vert (input i)
             {
@@ -62,14 +65,14 @@ Shader "Custom/TerrainShader"
 
                 o.worldNormal = i.normal;
 
-                //o.normal = mul( float4( i.normal, 0.0 ), unity_WorldToObject ).xyz;
+                o.worldNormal = float4(mul( unity_ObjectToWorld, i.normal ).xyz, 0.0);
 
                 o.pos = UnityObjectToViewPos(i.vertex);
                 o.color = i.color;
 
-                half nl = max(0, dot(o.worldNormal, _WorldSpaceLightPos0.xyz));
+                half nl = max(0, dot(-o.worldNormal, _WorldSpaceLightPos0.xyz));
                 // factor in the light color
-                o.diff = (nl * _LightColor0) + _AmbientColor;
+                o.diff = (nl * _LightColor0) / 50000;
 
 
                 return o;
@@ -77,16 +80,8 @@ Shader "Custom/TerrainShader"
             
             fixed4 frag (v2f v) : SV_Target
             {
-                // sample the texture
-                fixed2 lutUV = fixed2( -v.color.r , ((v.worldSpacePosition.g) / _Scale));
-                //lutUV = fixed2( -v.color.r , clamp(v.worldSpacePosition.g / 100, 0, 1));
-                fixed4 col = tex2D(_MainTex, lutUV);
-                //fixed4 col = v.worldSpacePosition.g;
-                // apply fog
-                //UNITY_APPLY_FOG(v.fogCoord, col);
-                float fog = (length(v.pos)/300)-0.1f;
-                col = v.diff * lerp(col, _FogColor, fog);
-                //col = fixed4(v.normal.r, v.normal.g, v.normal.b, 1);
+                fixed4 col = clamp(lerp(_TopColor, _BottomColor, clamp((v.uv.y * 3) - 1, 0, 1)),0,1);
+                col += v.diff;
                 return col;
             }
             ENDCG

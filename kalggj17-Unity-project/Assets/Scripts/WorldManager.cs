@@ -8,12 +8,15 @@ public class WorldManager : MonoBehaviour {
 	public int currentConfig = 0;
 
 	public MeshRenderer terrainMR;
+	public MeshRenderer skyMR;
 	Material terrainMat;
+	Material skyMat;
 	public Light dirLight;
 
 	void Start()
 	{
 		terrainMat = terrainMR.material;
+		skyMat = skyMR.material;
 		UpdateConfig();
 	}
 
@@ -46,6 +49,7 @@ public class WorldManager : MonoBehaviour {
 		terrainMat.SetColor("_FogColor", conf.fogColor);
 		terrainMat.SetColor("_AmbientColor", conf.ambientColor);
 		dirLight.color = conf.dirLightColor;
-		Camera.main.backgroundColor = conf.skyColor;
+		skyMat.SetColor("_TopColor", conf.skyColor);
+		skyMat.SetColor("_BottomColor", conf.skyColor2);
 	}
 }
