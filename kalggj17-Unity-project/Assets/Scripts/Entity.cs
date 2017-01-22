@@ -29,6 +29,7 @@ public class Entity: MonoBehaviour {
 
    public void Die() {
 
+      spawning      = false;
       dying         = true;
       animStartTime = Time.time;
    }
@@ -47,7 +48,7 @@ public class Entity: MonoBehaviour {
 
          float t = Mathf.Clamp01( (Time.time - animStartTime) / EntityController.instance.dieTime );
          tf.localScale = Vector3.one * EntityController.instance.dieCurve.Evaluate( t ) * targetSize;
-         if (t == 1.0f) { Destroy( gameObject ); }
+         if (t >= 0.99f) { Destroy( gameObject ); }
       }
    }
 }
