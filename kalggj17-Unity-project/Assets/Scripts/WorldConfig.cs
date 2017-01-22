@@ -9,5 +9,6 @@ public class WorldConfig : MonoBehaviour {
 	public Color fogColor;
 	public Color dirLightColor;
 	public Color skyColor;
+	public Color skyColor2;
 
 }
