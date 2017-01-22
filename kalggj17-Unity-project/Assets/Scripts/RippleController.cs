@@ -39,9 +39,10 @@ public class RippleController: MonoBehaviour {
    public static RippleController instance;
 
    public float     minAmplitude, heightAtMinAmplitude, midAmplitude, heightAtMidAmplitude,
-                    midPitch, widthAtMidPitch, pitchScale, speed, trailProportion, keyframeInterval;
-   public int       trailOutRipples;
-   public bool      useCurves;
+                    midPitch, widthAtMidPitch, pitchScale, speed, trailProportion, keyframeInterval,
+                    trailOffDistance, speedDamping;
+   public int       trailOutRipples, maxRipples;
+   public bool      useCurves, useDownPin;
    public Transform upPin, downPin;
 
    internal float          amplitudeInput, pitchInput;
@@ -97,6 +98,7 @@ public class RippleController: MonoBehaviour {
          if (!down) { upCurve = ripple.curve; }
       }
       ripples.Add( ripple );
+      if (ripples.Count > maxRipples) { ripples.RemoveAt( 0 ); }
    }
 
    void MakeNewTrailRipple( Ripple parent ) {
@@ -145,7 +147,7 @@ public class RippleController: MonoBehaviour {
 
             inputActive = true;
             MakeNewRipple();
-            if (useCurves) { MakeNewRipple( true ); }
+            if (useCurves && useDownPin) { MakeNewRipple( true ); }
          }
       }
       else {
@@ -166,8 +168,10 @@ public class RippleController: MonoBehaviour {
                   if (Time.time > currentRipple.lastKeyframeTime + keyframeInterval) {
                      currentRipple.lastKeyframeTime = Time.time;
                      currentRipple.curve.AddKey( Time.time - currentRipple.startTime, AmplitudeToHeight( recentAmplitudes.Average() ) );
-                     currentDownRipple.lastKeyframeTime = Time.time;
-                     currentDownRipple.curve.AddKey( Time.time - currentDownRipple.startTime, -AmplitudeToHeight( recentAmplitudes.Average() ) );
+                     if (useDownPin) {
+                        currentDownRipple.lastKeyframeTime = Time.time;
+                        currentDownRipple.curve.AddKey( Time.time - currentDownRipple.startTime, -AmplitudeToHeight( recentAmplitudes.Average() ) );
+                     }
                      //Debug.Log( "keys: " + (Time.time - currentDownRipple.startTime) + " - " + AmplitudeToHeight( amplitudeInput ) + ", " +  -AmplitudeToHeight( amplitudeInput ) );
                      //Debug.Log( Utils.PrintVals( currentRipple.curve.keys ) );
                   }
@@ -179,7 +183,7 @@ public class RippleController: MonoBehaviour {
             }
             else {
                MakeNewRipple();
-               if (useCurves) { MakeNewRipple( true ); }
+               if (useCurves && useDownPin) { MakeNewRipple( true ); }
             }
          }
       }

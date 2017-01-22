@@ -55,11 +55,12 @@ public class WaveTerrain: MonoBehaviour {
             verts[ x + z * size ].y    = heights[ x, z ];
             if (lerpColors) {
                float slope      = Vector3.Angle( normals[ x + z * size ], Vector3.up );
-               Color flatColor  = flatColors.Evaluate( Mathf.InverseLerp( minAltitude, maxAltitude, heights[ x, z ] ) );
-               Color slopeColor = slopeColors.Evaluate( Mathf.InverseLerp( minAltitude, maxAltitude, heights[ x, z ] ) );
-               //flatColor  = Color.white;
-               //slopeColor = Color.black;
+               //Color flatColor  = flatColors.Evaluate( Mathf.InverseLerp( minAltitude, maxAltitude, heights[ x, z ] ) );
+               //Color slopeColor = slopeColors.Evaluate( Mathf.InverseLerp( minAltitude, maxAltitude, heights[ x, z ] ) );
+               Color flatColor  = Color.white;
+               Color slopeColor = Color.black;
                meshColors[ x + z * size ] = Color.Lerp( flatColor, slopeColor, Mathf.InverseLerp( 0.0f, maxSlopeAngle, slope ) );
+                  meshColors[ x + z * size ].g = Random.value;
             }
          }
       }
@@ -181,10 +182,10 @@ public class WaveTerrain: MonoBehaviour {
                   float st = Time.realtimeSinceStartup;
                   float t = (rippleRadius - distance) / RippleController.instance.speed;
                   if (t > 0 && t < ripple.curve.keys.Last().time) {
-                     height += ripple.curve.Evaluate( t );
+                     height += ripple.curve.Evaluate( Mathf.Pow( t, 1.1f ) );
                   }
                   curveEvaluateTime += Time.realtimeSinceStartup - st;
-                  totalTime = Time.realtimeSinceStartup;
+                  totalTime          = Time.realtimeSinceStartup;
                }
                else {
                   float pointWithinRipple = (rippleRadius - distance) / ripple.width;
