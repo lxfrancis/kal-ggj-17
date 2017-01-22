@@ -4,19 +4,24 @@ using UnityEngine;
 
 public class WorldManager : MonoBehaviour {
 
+
 	public WorldConfig[] worldConfigs;
 	public int currentConfig = 0;
 
 	public MeshRenderer terrainMR;
 	public MeshRenderer skyMR;
+	public MeshRenderer waterMR;
 	Material terrainMat;
 	Material skyMat;
+	Material waterMat;
 	public Light dirLight;
+
 
 	void Start()
 	{
 		terrainMat = terrainMR.material;
 		skyMat = skyMR.material;
+		waterMat = waterMR.material;
 		UpdateConfig();
 	}
 
@@ -51,5 +56,11 @@ public class WorldManager : MonoBehaviour {
 		dirLight.color = conf.dirLightColor;
 		skyMat.SetColor("_TopColor", conf.skyColor);
 		skyMat.SetColor("_BottomColor", conf.skyColor2);
+		waterMR.enabled = conf.useWater;
+		waterMat.SetColor("_AmbientColor", conf.waterColor);
+		waterMat.SetColor("_FogColor", conf.fogColor);
+
+		EntityController entityController = GameObject.FindObjectOfType<EntityController>();
+
 	}
 }

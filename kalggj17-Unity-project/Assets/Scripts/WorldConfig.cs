@@ -10,5 +10,8 @@ public class WorldConfig : MonoBehaviour {
 	public Color dirLightColor;
 	public Color skyColor;
 	public Color skyColor2;
+	public bool useTrees = false;
+	public bool useWater = false;
+	public Color waterColor;
 
 }

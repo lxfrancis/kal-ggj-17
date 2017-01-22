@@ -12,6 +12,7 @@ public class WaveTerrain: MonoBehaviour {
    public bool      flatShaded = true, lerpColors = true, updateVerts = true;
    public Transform cursorPlane;
    public Gradient  flatColors, slopeColors;
+	public MeshFilter waterMF;
 
    internal Flat2DArray< float > heights, heightNoise, heightDeltas;
    internal float                centreOffset;
@@ -165,6 +166,12 @@ public class WaveTerrain: MonoBehaviour {
       mesh.triangles = tris.ToArray();
       mesh.RecalculateNormals();
       GetComponent< MeshFilter >().mesh = mesh;
+		if(waterMF)
+		{
+		waterMF.mesh.vertices = mesh.vertices;
+		//waterMF.mesh.colors = mesh.colors;
+		waterMF.mesh.triangles = mesh.triangles;
+		}	
    }
 
    float curveEvaluateTime;
@@ -209,4 +216,5 @@ public class WaveTerrain: MonoBehaviour {
 
       UpdateMesh();
    }
+
 }
