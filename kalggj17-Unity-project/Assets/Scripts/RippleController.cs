@@ -40,11 +40,11 @@ public class RippleController: MonoBehaviour {
 
    public float          minAmplitude, heightAtMinAmplitude, midAmplitude, heightAtMidAmplitude,
                          midPitch, widthAtMidPitch, pitchScale, speed, trailProportion, keyframeInterval,
-                         trailOffDistance, speedDamping, heightGrowthDuration, rippleSplitTimeGap = 0.2f;
+                         trailOffDistance = 80.0f, speedDamping, heightGrowthDuration, rippleSplitTimeGap = 0.2f;
    public int            trailOutRipples, maxRipples;
    public bool           useCurves, useDownPin;
    public Transform      upPin, downPin;
-   public AnimationCurve growthCurve;
+   public AnimationCurve growthCurve, dampingCurve;
 
    internal float          amplitudeInput, pitchInput;
    internal List< Ripple > ripples = new List<Ripple>();
@@ -74,6 +74,7 @@ public class RippleController: MonoBehaviour {
 
       instance = this;
       if (!useDownPin) { downPin.gameObject.SetActive( false ); }
+      if (trailOffDistance == 0) { trailOffDistance = 80.0f; }
    }
 
    void MakeNewRipple( bool down=false ) {
@@ -96,7 +97,7 @@ public class RippleController: MonoBehaviour {
 
       if (useCurves) {
 
-         ripple.curve            = new AnimationCurve( new Keyframe( 0.0f, ripple.height * growthCurve.Evaluate( 0.0f ) ) );
+         ripple.curve = new AnimationCurve( new Keyframe( 0.0f, ripple.height * growthCurve.Evaluate( 0.0f ) ) );
          ripple.lastKeyframeTime = Time.time;
          if (!down) { upCurve = ripple.curve; }
       }

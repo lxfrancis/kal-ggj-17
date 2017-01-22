@@ -195,7 +195,7 @@ public class WaveTerrain: MonoBehaviour {
                   float t = (rippleRadius - distance) / RippleController.instance.speed;
 
                   if (t > 0 && t < ripple.curve.keys.Last().time) {
-                     height += ripple.curve.Evaluate( Mathf.Pow( t, 1.1f ) );
+                     height += ripple.curve.Evaluate( Mathf.Pow( t, 1.1f ) ) * RippleController.instance.dampingCurve.Evaluate( distance /RippleController.instance.trailOffDistance );
                   }
                   curveEvaluateTime += Time.realtimeSinceStartup - st;
                   totalTime          = Time.realtimeSinceStartup;
