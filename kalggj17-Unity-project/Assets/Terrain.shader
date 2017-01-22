@@ -68,9 +68,13 @@ Shader "Custom/TerrainShader"
                 o.color = i.color;
 
                 half nl = max(0, dot(o.worldNormal, float3(1.0,1.0,1.0)));
+
+
+
+
                 // factor in the light color
                 //o.diff = (nl * _LightColor0);
-                o.diff = (nl * _LightColor0) + _AmbientColor;
+                o.diff = (nl) + _AmbientColor;
 
 
                 return o;
@@ -87,7 +91,7 @@ Shader "Custom/TerrainShader"
                 // apply fog
                 //UNITY_APPLY_FOG(v.fogCoord, col);
                 float fog = (length(v.pos)/300)-0.1f;
-                col = v.diff * lerp(col, _FogColor, fog);
+                col = lerp(v.diff *col, _FogColor, fog);
                 //col = fixed4(v.normal.r, v.normal.g, v.normal.b, 1);
                 return col;
             }

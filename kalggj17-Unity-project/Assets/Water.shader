@@ -10,8 +10,9 @@ Shader "Custom/Water"
     }
     SubShader
     {
-        Tags { "RenderType"="Opaque" }
+        Tags { "RenderType"="Transparent" }
         LOD 100
+        Blend SrcAlpha OneMinusSrcAlpha
 
         Pass
         {
@@ -65,9 +66,9 @@ Shader "Custom/Water"
                 //o.normal = mul( float4( i.normal, 0.0 ), unity_WorldToObject ).xyz;
 
 
-                float delta = 1+sin((_Time.w) + o.vertex.x + o.vertex.y);
+                //float delta = 1+sin((_Time.w) + o.vertex.x + o.vertex.y);
 
-                o.vertex += float4(0.0 , delta, 0.0, 0.0);
+                //o.vertex += float4(0.0 , delta, 0.0, 0.0);
 
 
 
