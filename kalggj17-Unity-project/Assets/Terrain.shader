@@ -78,7 +78,8 @@ Shader "Custom/TerrainShader"
             fixed4 frag (v2f v) : SV_Target
             {
                 // sample the texture
-                fixed2 lutUV = fixed2( -v.color.r , ((v.worldSpacePosition.g) / _Scale));
+                float height = ((v.worldSpacePosition.g) / _Scale) + (v.color.g * -0.2);
+                fixed2 lutUV = fixed2( -v.color.r , height );
                 //lutUV = fixed2( -v.color.r , clamp(v.worldSpacePosition.g / 100, 0, 1));
                 fixed4 col = tex2D(_MainTex, lutUV);
                 //fixed4 col = v.worldSpacePosition.g;

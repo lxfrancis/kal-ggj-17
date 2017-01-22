@@ -8,12 +8,12 @@ public class WaveTerrain: MonoBehaviour {
    public static WaveTerrain instance;
 
    public int       size;
-   public float     baseHeight, bottomHeight, minAltitude, maxAltitude, maxSlopeAngle;
+   public float     baseHeight, bottomHeight, minAltitude, maxAltitude, maxSlopeAngle, noiseLevel = 0.5f;
    public bool      flatShaded = true, lerpColors = true, updateVerts = true;
    public Transform cursorPlane;
    public Gradient  flatColors, slopeColors;
 
-   internal Flat2DArray< float > heights, heightDeltas;
+   internal Flat2DArray< float > heights, heightNoise, heightDeltas;
    internal float                centreOffset;
    
    Mesh                 mesh;
@@ -90,6 +90,7 @@ public class WaveTerrain: MonoBehaviour {
       
       heights              = new Flat2DArray< float >( size, size );
       heightDeltas         = new Flat2DArray< float >( size, size );
+      heightNoise          = new Flat2DArray< float >( size, size );
       verts                = new Vector3[ size * size + 8 * size ];
       meshColors           = new Color[ verts.Length ];
       colorMap             = new Flat2DArray< Color >( size, size );
@@ -109,7 +110,8 @@ public class WaveTerrain: MonoBehaviour {
       // top surface
       for (int x = 0; x < size; x++) {
          for (int z = 0; z < size; z++) {
-            heights[ x, z ]       = baseHeight;
+            heightNoise[ x, z ] = Random.value;
+            heights[ x, z ]       = baseHeight + heightNoise[ x, z ] * noiseLevel;
             verts[ x + z * size ] = new Vector3( x - centreOffset, baseHeight, z - centreOffset );
          }
       }
@@ -173,7 +175,7 @@ public class WaveTerrain: MonoBehaviour {
       for (int x = 0; x < size - 1; x++) {
          for (int z = 0; z < size - 1; z++) {
             //heights[ x, z ] = baseHeight + 1 * (Mathf.Sin( Time.time + x * 0.7f ) + Mathf.Sin( Time.time * 0.5f + z * 0.4f )) + 1.5f * Mathf.Sin( new Vector2( x - centreOffset, z - centreOffset ).magnitude - Time.time * 1.7f );
-            float height = baseHeight;
+            float height = baseHeight + heightNoise[ x, z ] * noiseLevel;
 
             foreach (Ripple ripple in RippleController.instance.ripples) {
 
@@ -181,8 +183,10 @@ public class WaveTerrain: MonoBehaviour {
                float rippleRadius = (Time.time - ripple.startTime) * RippleController.instance.speed;
 
                if (RippleController.instance.useCurves) {
+
                   float st = Time.realtimeSinceStartup;
                   float t = (rippleRadius - distance) / RippleController.instance.speed;
+
                   if (t > 0 && t < ripple.curve.keys.Last().time) {
                      height += ripple.curve.Evaluate( Mathf.Pow( t, 1.1f ) );
                   }
