@@ -57,7 +57,7 @@ public class EntityController: MonoBehaviour {
 
                      entityInstances[ x, z ] = Instantiate( entity, new Vector3( x - WaveTerrain.instance.centreOffset + Random.Range( -0.25f, 0.25f ),
                                                  height, z - WaveTerrain.instance.centreOffset + Random.Range( -0.25f, 0.25f ) ), Quaternion.Euler( 0.0f, Random.Range( 0.0f, 360.0f ), 0.0f ) );
-                     continue;
+                     break;
                   }
                }
             } else {

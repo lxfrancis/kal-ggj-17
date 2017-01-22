@@ -29,6 +29,7 @@ public class Entity: MonoBehaviour {
 
    public void Die() {
 
+      spawning      = false;
       dying         = true;
       animStartTime = Time.time;
    }
