@@ -143,7 +143,7 @@ public class RippleController: MonoBehaviour {
 
          lastInputPoint = new Vector2( hit.point.x, hit.point.z );
          if (Input.GetMouseButtonDown( 0 )) {
-            upPin.position= WaveTerrain.instance.PositionForCoord( lastInputPoint );
+            upPin.position= WaveTerrain.instance.PositionForCoord( lastInputPoint ).ZeroY();
             currentRipple = null;
          }
          if (Input.GetMouseButtonDown( 1 )) { downPin.position = lastInputPoint; }
