@@ -17,6 +17,7 @@ public class MicInput : MonoBehaviour {
 
 	void StopMicrophone()
 	{
+		Debug.Log("stop mic", this);
 		Microphone.End(_device);
 	}
 
@@ -50,6 +51,7 @@ public class MicInput : MonoBehaviour {
 		// pass the value to a static var so we can access it from anywhere
 		MicLoudness = LevelMax ();
 		if(MicLoudness>0){Debug.Log(MicLoudness);}
+		//Debug.Log(_clipRecord.GetData(waveData, micPosition));
 	}
 
 	bool _isInitialized;
