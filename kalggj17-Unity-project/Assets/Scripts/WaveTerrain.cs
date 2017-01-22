@@ -26,9 +26,11 @@ public class WaveTerrain: MonoBehaviour {
       instance = this;
    }
 
-   public void PositionForCoord( int x, int z ) {
+   public Vector3 PositionForCoord( Vector2 coord ) {
 
-
+      var result = new Vector3( coord.x, heights[ Mathf.Clamp( Mathf.RoundToInt( coord.x ), 0, size - 1 ), Mathf.Clamp( Mathf.RoundToInt( coord.y ), 0, size - 1 ) ], coord.y );
+      Debug.Log( "Position for coord: " + coord + " - " + result );
+      return result;
    }
 
    void AddTrianglePair( int a, int b, int c, int d, List< int > tris, string info ) {
