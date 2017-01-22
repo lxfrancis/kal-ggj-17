@@ -38,12 +38,13 @@ public class RippleController: MonoBehaviour {
 
    public static RippleController instance;
 
-   public float     minAmplitude, heightAtMinAmplitude, midAmplitude, heightAtMidAmplitude,
-                    midPitch, widthAtMidPitch, pitchScale, speed, trailProportion, keyframeInterval,
-                    trailOffDistance, speedDamping;
-   public int       trailOutRipples, maxRipples;
-   public bool      useCurves, useDownPin;
-   public Transform upPin, downPin;
+   public float          minAmplitude, heightAtMinAmplitude, midAmplitude, heightAtMidAmplitude,
+                         midPitch, widthAtMidPitch, pitchScale, speed, trailProportion, keyframeInterval,
+                         trailOffDistance, speedDamping, heightGrowthDuration;
+   public int            trailOutRipples, maxRipples;
+   public bool           useCurves, useDownPin;
+   public Transform      upPin, downPin;
+   public AnimationCurve growthCurve;
 
    internal float          amplitudeInput, pitchInput;
    internal List< Ripple > ripples = new List<Ripple>();
@@ -93,7 +94,7 @@ public class RippleController: MonoBehaviour {
 
       if (useCurves) {
 
-         ripple.curve            = new AnimationCurve( new Keyframe( 0.0f, ripple.height ) );
+         ripple.curve            = new AnimationCurve( new Keyframe( 0.0f, ripple.height * growthCurve.Evaluate( 0.0f ) ) );
          ripple.lastKeyframeTime = Time.time;
          if (!down) { upCurve = ripple.curve; }
       }
@@ -167,7 +168,8 @@ public class RippleController: MonoBehaviour {
                if (useCurves) {
                   if (Time.time > currentRipple.lastKeyframeTime + keyframeInterval) {
                      currentRipple.lastKeyframeTime = Time.time;
-                     currentRipple.curve.AddKey( Time.time - currentRipple.startTime, AmplitudeToHeight( recentAmplitudes.Average() ) );
+                     float multiplier = growthCurve.Evaluate( (Time.time - currentRipple.startTime) / heightGrowthDuration );
+                     currentRipple.curve.AddKey( Time.time - currentRipple.startTime, AmplitudeToHeight( recentAmplitudes.Average() ) * multiplier );
                      if (useDownPin) {
                         currentDownRipple.lastKeyframeTime = Time.time;
                         currentDownRipple.curve.AddKey( Time.time - currentDownRipple.startTime, -AmplitudeToHeight( recentAmplitudes.Average() ) );
