@@ -6,6 +6,7 @@ public class CameraManager : MonoBehaviour {
 
 	public Transform cameraTarget;
 	public float rotateRate;
+	public float autoRotateRate = 0;
 
 	Vector3 prevMousePosition;
 
@@ -22,6 +23,7 @@ public class CameraManager : MonoBehaviour {
 			cameraTarget.RotateAround(cameraTarget.position, Vector3.up, mouseDelta.x);
 			cameraTarget.RotateAround(cameraTarget.position, Camera.main.transform.right, -mouseDelta.y);
 		}
+		cameraTarget.RotateAround(cameraTarget.position, Vector3.up, autoRotateRate * Time.deltaTime);
 
 		prevMousePosition = Input.mousePosition;
 

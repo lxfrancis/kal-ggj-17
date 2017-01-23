@@ -15,6 +15,7 @@ public class WorldManager : MonoBehaviour {
 	Material skyMat;
 	Material waterMat;
 	public Light dirLight;
+	public AudioSource musicAudioSource;
 
 
 	void Start()
@@ -44,6 +45,11 @@ public class WorldManager : MonoBehaviour {
 		{
 			UpdateConfig();
 		}
+
+		if(Input.GetKeyUp(KeyCode.M))
+		{
+			musicAudioSource.enabled = !musicAudioSource.enabled;
+		}
 		
 	}
 
@@ -57,8 +63,8 @@ public class WorldManager : MonoBehaviour {
 		skyMat.SetColor("_TopColor", conf.skyColor);
 		skyMat.SetColor("_BottomColor", conf.skyColor2);
 		waterMR.enabled = conf.useWater;
-		waterMat.SetColor("_AmbientColor", conf.waterColor);
-		waterMat.SetColor("_FogColor", conf.fogColor);
+		waterMat.SetColor("_TintColor", conf.waterColor);
+		//waterMat.SetColor("_FogColor", conf.fogColor);
 
 		EntityController entityController = GameObject.FindObjectOfType<EntityController>();
 		entityController.spawnTrees = conf.useTrees;

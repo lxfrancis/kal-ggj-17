@@ -203,4 +203,9 @@ public class RippleController: MonoBehaviour {
       }
       numRipples = ripples.Count;
    }
+
+	public int GetRippleCount()
+	{
+		return ripples.Count();
+	}
 }
